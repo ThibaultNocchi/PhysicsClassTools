@@ -5,7 +5,9 @@ This tool is used in a physic class where students need to answer different ques
 ## Summary
 
 The teacher first chose the number of groups which will play, the time available before the bomb goes off and the password to defuse it. Capitalization isn't taken into account, so if the teacher puts in "password", students can defuse it with "PaSSwOrD".  
-A new screen appears with the countdown, and inputs for different groups. When a group succeeds by finding the password, their little bomb is replaced with a green thumbs-up. For those who won't find the password, in the end, their bomb turns into a red fire.
+A new screen appears with the countdown, and inputs for different groups. When a group succeeds by finding the password, their little bomb is replaced with a green thumbs-up. For those who won't find the password, in the end, their bomb turns into a red fire.  
+
+Feel free to try it on [Github Sites](https://tiwenty.github.io/PhysicsClassTools/BombCountdownEscapeGame/).
 
 ## External Dependencies
 
