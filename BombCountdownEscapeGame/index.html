@@ -1,0 +1,194 @@
+<!doctype html>
+<html lang="fr">
+
+    <head>
+        <meta charset="utf-8">
+        <title>Compte à rebours</title>
+        <meta name="description" content="Countdown">
+        <link rel="stylesheet" href="style.css">
+        <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.3/css/all.css" integrity="sha384-UHRtZLI+pbxtHCWp1t77Bi1L4ZtiqrqD80Kn4Z8NTSRyMA2Fd33n5dQ8lWUE00s/" crossorigin="anonymous">
+        <link rel="stylesheet" href="https://unpkg.com/spectre.css/dist/spectre.min.css">
+    </head>
+    <body>
+
+        <div class="container">
+
+            <h1 class="text-center">Escape Game Physique-Chimie</h1>
+
+            <div id="home" class="col-3 col-sm-12">
+                <div class="form-group">
+                    <label class="form-label" for="numberOfBombs">Nombre de groupes : </label><input type="number" class="form-input input-sm" value="3" id="numberOfBombs" />
+                    <label class="form-label" for="timeAvailable">Temps disponible : </label><input type="time" class="form-input input-sm" value="00:55" id="timeAvailable" />
+                    <label class="form-label" for="code">Code à trouver : </label><input type="password" class="form-input input-sm" id="givenCode" />
+                </div>
+                <button class="btn btn-primary" id="submitForm">Démarrer</button>
+            </div>
+
+            <div id="countdown">
+                <div id="clock" class="counting text-center columns"><div id="sec" class="column col-10 col-xl-12"></div><div id="csec" class="column col-2 text-left hide-xl"></div></div>
+                <div id="groupList" class="columns"></div>
+            </div>
+
+        </div>
+
+        <script type="text/javascript">
+
+            var submitForm = document.querySelector("#submitForm");
+            var numberOfBombs = document.querySelector("#numberOfBombs");
+            var timeAvailable = document.querySelector("#timeAvailable");
+            var givenCode = document.querySelector("#givenCode");
+            var home = document.querySelector("#home");
+            var countdown = document.querySelector("#countdown");
+            var secClock = document.querySelector("#sec");
+            var csecClock = document.querySelector("#csec");
+            var groupList = document.querySelector("#groupList");
+            var timeLeft;
+            var codeToFind = "TEST";
+            var countdownInterval;
+            var csecInterval;
+            var parsedCode;
+            var csec = 99;
+            var csStep = 5;
+
+            function updateCountdown(){
+                var locked = document.querySelectorAll(".locked");
+                if(timeLeft >= 0 && locked.length > 0){
+                    var seconds = timeLeft % 60;
+                    var minutes = (timeLeft - seconds)/60;
+                    secondsStr = seconds + "";
+                    minutesStr = minutes + "";
+                    if(seconds < 10)
+                        secondsStr = "0"+secondsStr;
+                    if(minutes < 10)
+                        minutesStr = "0"+minutesStr;
+                    secClock.innerText = minutesStr+":"+secondsStr;
+                    --timeLeft;
+                    csec=99;
+                }else if(timeLeft == -1 && locked.length > 0){
+                    clearInterval(countdownInterval);
+                    clearInterval(csecInterval);
+                    csec = 0;
+                    updateCsec();
+                    for(var i = 0; i < locked.length; ++i){
+                        locked[i].className = "fas fa-fire";
+                        var id = parseInt((locked[i].id.split("-"))[1]);
+                        document.querySelector("#code-" + id).disabled = true;
+                        document.querySelector("#submitCode-" + id).disabled = true;
+                    }
+                }
+            }
+
+            function updateCsec(){
+                csecClock.innerText = csec;
+                if(csec < 10) csecClock.innerText = "0" + csecClock.innerText;
+                csec -= csStep;
+                if(csec < 0) csec = 99;
+            }
+
+            function updateForms(){
+                var locked = document.querySelectorAll(".locked");
+                if(locked.length == 0){
+                    clearInterval(countdownInterval);
+                    clearInterval(csecInterval);
+                    clock.classList.remove("counting");
+                    clock.classList.add("countingDone");
+                }
+            }
+
+            submitForm.onclick = function(){
+
+                var chosenTime = timeAvailable.value;
+                chosenTime = chosenTime.split(":");
+
+                var codeToFind = givenCode.value.toUpperCase();
+
+                var i = 0;
+                timeLeft = 0;
+                while(i in chosenTime){
+                    switch (i) {
+                        case 0:
+                            timeLeft += parseInt(chosenTime[i]*3600);
+                            break;
+                        case 1:
+                            timeLeft += parseInt(chosenTime[i] * 60);
+                            break;
+                        default:
+                            break;
+                    }
+                    ++i;
+                }
+
+                home.style.display = "none";
+
+                var groups = parseInt(numberOfBombs.value);
+                
+                for (let i = 0; i < groups; ++i) {
+                    
+                    var groupDiv = document.createElement("div");
+                    groupDiv.id = "group-"+i;
+                    groupDiv.className = "groups text-center col-4 col-lg-12 column";
+
+                        var formDiv = document.createElement("div");
+                        formDiv.className = "mb-2";
+
+                            var innerDiv = document.createElement("div");
+                            innerDiv.className = "form-group input-group";
+                            
+                                var label = document.createElement("label");
+                                label.innerText = "Groupe "+(i+1);
+                                label.setAttribute("for", "code-"+i);
+                                label.className = "form-label input-group-addon addon-lg";
+                                innerDiv.appendChild(label);
+
+                                var input = document.createElement("input");
+                                input.setAttribute("type", "password");
+                                input.setAttribute("placeholder", "Code groupe "+(i+1));
+                                input.id = "code-"+i;
+                                input.className = "form-input input-lg";
+                                innerDiv.appendChild(input);
+
+                                var button = document.createElement("button");
+                                button.className = "submitCode btn btn-primary input-group-btn btn-lg";
+                                button.appendChild(document.createTextNode("Arrêter la bombe"));
+                                button.id = "submitCode-"+i;
+                                innerDiv.appendChild(button);
+
+                            formDiv.appendChild(innerDiv);
+
+                        groupDiv.appendChild(formDiv);
+
+                            var icon = document.createElement("i");
+                            icon.className = "fas fa-bomb locked";
+                            icon.id = "icon-" + i;
+
+                        groupDiv.appendChild(icon);
+
+                    groupList.appendChild(groupDiv);
+                }
+
+                var submitCode = document.querySelectorAll(".submitCode");
+                for (var i = 0; i < submitCode.length; i++) {
+                    submitCode[i].onclick = function (e) {
+                        var id = parseInt(e.target.id.split("-")[1]);
+                        if(document.querySelector("#code-"+id).value.toUpperCase() == codeToFind){
+                            document.querySelector("#icon-"+id).className = "fas fa-thumbs-up";
+                            document.querySelector("#code-"+id).disabled = true;
+                            document.querySelector("#submitCode-" + id).disabled = true;
+                            updateForms();
+                        }
+                    }
+                }
+
+                updateCountdown();
+                updateCsec();
+                countdownInterval = window.setInterval(updateCountdown, 1000);
+                csecInterval = window.setInterval(updateCsec, csStep*10);
+
+                countdown.style.display = "block";
+
+            }
+
+        </script>
+
+    </body>
+</html>

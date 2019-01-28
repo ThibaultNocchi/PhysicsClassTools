@@ -1,0 +1,43 @@
+@import url('https://fonts.googleapis.com/css?family=Orbitron');
+
+#clock{
+    font-family: "Orbitron";
+}
+
+#sec{
+    font-size: 18em;
+}
+
+#csec{
+    font-size: 4em;
+    margin-top: 250px;
+}
+
+#countdown{
+    display: none;
+}
+
+.fa-fire, .counting{
+    color: #f44336;
+}
+
+.fa-thumbs-up, .countingDone{
+    color: #8bc34a;
+}
+
+.fa-bomb{
+    color: black;
+}
+
+i{
+    font-size: 5em;
+}
+
+h1{
+    margin-top: 12px !important;
+    margin-bottom: 12px !important;
+}
+
+.groups{
+    margin-bottom: 40px !important;
+}
